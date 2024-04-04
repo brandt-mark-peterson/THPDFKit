@@ -39,7 +39,7 @@ class SearchTableViewController: UITableViewController {
         tableView.cellLayoutMarginsFollowReadableWidth = false
         
         navigationItem.titleView = searchBar
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancelButtonClicked))
+        //navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancelButtonClicked))
         
         tableView.register(SearchTableViewCell.classForCoder(), forCellReuseIdentifier: searchTableViewCellReuseIdentifier)
     }
