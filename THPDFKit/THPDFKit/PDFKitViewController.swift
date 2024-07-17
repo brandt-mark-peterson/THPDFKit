@@ -42,6 +42,8 @@ open class PDFKitViewController: UIViewController, PDFViewController {
     }
     
     var pdfdocument: PDFDocument?
+    var lastSearchTerm:String?
+    var lastSelectedRow:Int?
     
     fileprivate lazy var pdfView: PDFView = {
         let view = PDFView()
@@ -167,6 +169,14 @@ open class PDFKitViewController: UIViewController, PDFViewController {
             self.pdfView.addGestureRecognizer(swipeGesture)
         })
         updateOrientation(landscape: UIApplication.shared.statusBarOrientation.isLandscape)
+        
+        let search = UIBarButtonItem(barButtonSystemItem: .search, target: self, action: #selector(navBarSearch))
+        self.navigationItem.rightBarButtonItem = search
+    }
+    
+    @objc open func navBarSearch() {
+        let button = UIButton()
+        self.searchButtonClick(button)
     }
     
     override open func viewDidAppear(_ animated: Bool) {
@@ -257,10 +267,11 @@ open class PDFKitViewController: UIViewController, PDFViewController {
         let searchViewController = SearchTableViewController()
         searchViewController.pdfDocument = pdfdocument
         searchViewController.delegate = self
-        
+        searchViewController.lastSearchTerm = self.lastSearchTerm
+        searchViewController.lastSelectedRow = self.lastSelectedRow
         let nav = UINavigationController(rootViewController: searchViewController)
         nav.modalPresentationStyle = .fullScreen
-        self.present(nav, animated: true, completion:nil)
+        self.navigationController?.present(nav, animated: true, completion:nil)
     }
     
     // MARK: Gesture Actions
@@ -411,7 +422,7 @@ extension PDFKitViewController: PDFViewDelegate {
             delegate.pdfViewController(self, willClickOnLink: url)
         } else {
             if UIApplication.shared.canOpenURL(url) {
-                UIApplication.shared.openURL(url)
+                UIApplication.shared.open(url)
             }
         }
     }
@@ -441,10 +452,15 @@ extension PDFKitViewController: ThumbnailCollectionViewControllerDelegate {
 @available(iOS 11.0, *)
 extension PDFKitViewController: SearchTableViewControllerDelegate {
     
-    func searchTableViewController(_ searchTableViewController: SearchTableViewController, didSelectSerchResult selection: PDFSelection) {
+    @objc public func searchTableViewController(_ searchTableViewController: SearchTableViewController, didSelectSerchResult selection: PDFSelection, row:Int) {
+        self.lastSelectedRow = row
         selection.color = UIColor.yellow
         pdfView.currentSelection = selection
         pdfView.go(to: selection)
+    }
+    
+    @objc public func saveSearchTerm(_ term: String) {
+        self.lastSearchTerm = term
     }
     
 }
